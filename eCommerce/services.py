@@ -39,24 +39,3 @@ def convert_dtypes(product):
     product.__dict__['rams_and_storage'] = list(product.rams_and_storage.all())
     product.__dict__['product_images']  = list(product.product_images.all())
 
-
-
-def handle_related_objects(related_objects):
-    result = []
-    
-    for i in related_objects:
-        convert_dtypes(i.product)
-        if type(i) is Item:
-            result.append({
-                'id': i.id,
-                'total': i.get_item_total,
-                'quantity': i.quantity,
-                'product': i.product.__dict__,
-            })
-        else:
-            result.append({
-                'id': i.id,
-                'product': i.product.__dict__,
-            })
-
-    return result

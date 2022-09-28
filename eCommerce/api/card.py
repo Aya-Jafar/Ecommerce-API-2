@@ -1,4 +1,3 @@
-from eCommerce.services import handle_related_objects
 from restauth.authorization import AuthBearer
 from eCommerce.schemas.item import ItemIn
 from django.contrib.auth import get_user_model

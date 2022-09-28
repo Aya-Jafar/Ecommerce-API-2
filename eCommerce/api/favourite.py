@@ -1,4 +1,3 @@
-from eCommerce.services import  handle_related_objects
 from typing import List
 from django.contrib.auth import get_user_model
 from eCommerce.schemas.product import FavProductOut

@@ -1,4 +1,3 @@
-from eCommerce.services import is_favourite
 from ninja import Schema
 from typing import List
 
@@ -22,7 +21,7 @@ class Product(Schema):
     rate : float
     colors : List[ProductColorOut] 
     rams_and_storage : List[ProductRamStorage]  
-    cpu : str 
+    cpu : str  
     system : str
     is_best_selling : bool 
     is_trending_now : bool
