@@ -63,7 +63,7 @@ def mark_as_favourite(request, id: int):
 
             return status.HTTP_404_NOT_FOUND, {'detail': f'Product with id {id} is favourite now'}
 
-    return status.HTTP_404_NOT_FOUND, {'message': 'Not authorized'}
+    return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
 
 
 
@@ -85,7 +85,7 @@ def delete_fav(request, id: int):
         except Favorite.DoesNotExist:
             return status.HTTP_404_NOT_FOUND, {'detail': 'Product is not a favourite'}
 
-    return status.HTTP_404_NOT_FOUND, {'message': 'Not authorized'}
+    return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
 
 
 @fav_router.delete('delete-all-favourites/', response={
@@ -105,4 +105,4 @@ def delete_all(request):
         else:
             return status.HTTP_404_NOT_FOUND, {'detail': 'No favourite products found'}
             
-    return status.HTTP_404_NOT_FOUND, {'message': 'Not authorized'}
+    return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
