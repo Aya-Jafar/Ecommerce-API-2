@@ -1,4 +1,4 @@
-from eCommerce.services import convert_dtypes
+from eCommerce.services import check_expire_date, convert_dtypes
 from restauth.authorization import AuthBearer
 from django.contrib.auth import get_user_model
 from eCommerce.schemas.cart import MessageOut, TotalCardOut
@@ -20,26 +20,29 @@ User = get_user_model()
     404: FourOFour
 }, auth=AuthBearer())
 def get_items_in_card(request):
-    try:
-        items = Item.objects.select_related('product', 'user').filter(user=User.objects.get(
-            id=request.auth['pk']), is_ordered=False)
-        result  = []
-        for i in items:
-            convert_dtypes(i.product)
-            result.append({
-                'id':i.id,
-                'quantity':i.quantity,
-                'total':i.get_item_total,
-                'product': i.product.__dict__,
-            })
+    if check_expire_date(request):
+        try:
+            items = Item.objects.select_related('product', 'user').filter(user=User.objects.get(
+                id=request.auth['pk']), is_ordered=False)
+            result  = []
+            for i in items:
+                convert_dtypes(i.product)
+                result.append({
+                    'id':i.id,
+                    'quantity':i.quantity,
+                    'total':i.get_item_total,
+                    'product': i.product.__dict__,
+                })
 
-        if items:
-            return status.HTTP_200_OK, result
+            if items:
+                return status.HTTP_200_OK, result
 
-        return status.HTTP_404_NOT_FOUND, {'message': 'Card is empty'}
+            return status.HTTP_404_NOT_FOUND, {'message': 'Card is empty'}
 
-    except Order.DoesNotExist:
-        return status.HTTP_404_NOT_FOUND, {'message': 'Card does not exist'}
+        except Order.DoesNotExist:
+            return status.HTTP_404_NOT_FOUND, {'message': 'Card does not exist'}
+    
+    return status.HTTP_404_NOT_FOUND, {'message': 'Not authorized'}
 
 
 
@@ -48,35 +51,40 @@ def get_items_in_card(request):
     404: FourOFour
 }, auth=AuthBearer())
 def get_item_total(request, item_id: int):
-    try:
-        item_total = Item.objects.get(
-            id=item_id,
-            user=User.objects.get(id=request.auth['pk']),
-            is_ordered=False).get_item_total
+    if check_expire_date(request):
+        try:
+            item_total = Item.objects.get(
+                id=item_id,
+                user=User.objects.get(id=request.auth['pk']),
+                is_ordered=False).get_item_total
 
-        return status.HTTP_200_OK, {'total': item_total}
+            return status.HTTP_200_OK, {'total': item_total}
 
-    except Item.DoesNotExist:
-        return status.HTTP_404_NOT_FOUND, {'message': 'Item does not exist'}
+        except Item.DoesNotExist:
+            return status.HTTP_404_NOT_FOUND, {'message': 'Item does not exist'}
 
+    return status.HTTP_404_NOT_FOUND, {'message': 'Not authorized'}
 
 @item_router.post('item-increase-quantity/{id}', response={
     200: MessageOut,
     404: MessageOut
 }, auth=AuthBearer())
 def increase_item_quantity(request, id: int):
-    try:
-        item = Item.objects.get(id=id, user=User.objects.get(
-            id=request.auth['pk']), is_ordered=False)
+    if check_expire_date(request):
+        try:
+            item = Item.objects.get(id=id, user=User.objects.get(
+                id=request.auth['pk']), is_ordered=False)
 
-        item.quantity += 1
-        item.save()
+            item.quantity += 1
+            item.save()
 
-        return status.HTTP_200_OK, {
-            'detail': 'Item quantity increased successfully!'
-        }
-    except Item.DoesNotExist:
-        return status.HTTP_404_NOT_FOUND, {'detail': f'Item with id {id} does not exist'}
+            return status.HTTP_200_OK, {
+                'detail': 'Item quantity increased successfully!'
+            }
+        except Item.DoesNotExist:
+            return status.HTTP_404_NOT_FOUND, {'detail': f'Item with id {id} does not exist'}
+
+    return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
 
 
 @item_router.post('reduce-quantity/{id}', response={
@@ -84,21 +92,24 @@ def increase_item_quantity(request, id: int):
     404: MessageOut
 }, auth=AuthBearer())
 def reduce_item_quantity(request, id: int):
-    try:
-        item = Item.objects.get(id=id, user=User.objects.get(
-            id=request.auth['pk']), is_ordered=False)
+    if check_expire_date(request):
+        try:
+            item = Item.objects.get(id=id, user=User.objects.get(
+                id=request.auth['pk']), is_ordered=False)
 
-        if item.quantity == 1:
-            item.delete()
-            return status.HTTP_200_OK, {'detail': 'Item deleted!'}
-        item.quantity -= 1
-        item.save()
+            if item.quantity == 1:
+                item.delete()
+                return status.HTTP_200_OK, {'detail': 'Item deleted!'}
+            item.quantity -= 1
+            item.save()
 
-        return status.HTTP_200_OK, {
-            'detail': 'Item quantity reduced successfully!'
-        }
-    except Item.DoesNotExist:
-        return status.HTTP_404_NOT_FOUND, {'detail': f'Item with id {id} does not exist'}
+            return status.HTTP_200_OK, {
+                'detail': 'Item quantity reduced successfully!'
+            }
+        except Item.DoesNotExist:
+            return status.HTTP_404_NOT_FOUND, {'detail': f'Item with id {id} does not exist'}
+
+    return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
 
 
 @item_router.delete('delete-item/{id}', response={
@@ -106,11 +117,14 @@ def reduce_item_quantity(request, id: int):
     404: MessageOut
 }, auth=AuthBearer())
 def delete_item(request, id: int):
-    try:
-        item = Item.objects.get(id=id, user=User.objects.get(
-            id=request.auth['pk']), is_ordered=False)
-        item.delete()
-        return status.HTTP_200_OK, {'detail': 'Item has been deleted successfully!'}
+    if check_expire_date(request):
+        try:
+            item = Item.objects.get(id=id, user=User.objects.get(
+                id=request.auth['pk']), is_ordered=False)
+            item.delete()
+            return status.HTTP_200_OK, {'detail': 'Item has been deleted successfully!'}
 
-    except Item.DoesNotExist:
-        return status.HTTP_404_NOT_FOUND, {'detail': f'Item with id {id} does not exist'}
+        except Item.DoesNotExist:
+            return status.HTTP_404_NOT_FOUND, {'detail': f'Item with id {id} does not exist'}
+
+    return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
