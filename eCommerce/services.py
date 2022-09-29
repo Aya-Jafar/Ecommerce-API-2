@@ -2,10 +2,25 @@
 A file for some helper functions
 '''
 
+from datetime import datetime
 from django.contrib.auth import get_user_model
 from .models import Favorite, Item
 
 User = get_user_model()
+
+
+
+def check_expire_date(request):
+    '''
+    Check if the user is authorized based on his login date
+    '''
+    # Get the date of the last time the user logged in 
+    created = datetime.strptime(request.auth['created'], '%Y-%m-%d %H:%M:%S.%f')
+    # if the current date - the date of the last login exceed 7 days -> the user is not authorized and user should login again
+    if int(datetime.now().day - created.day) < 7:
+        return True
+    return False
+
 
 
 def is_favourite(product, user_id):

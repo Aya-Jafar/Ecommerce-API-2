@@ -16,14 +16,13 @@ class AuthBearer(HttpBearer):
             return None
 
         if user:
-            return {'pk': str(user['pk'])}
-            # "created": str(user['created'])}
+            return {'pk': str(user['pk']),
+                    "created": str(user['created'])}
 
 
 def create_token_for_user(user):
-    token = jwt.encode({'pk': str(user.pk)},
+    token = jwt.encode({'pk': str(user.pk), 'created': f"{datetime.datetime.now()}"},
                        key=settings.SECRET_KEY, algorithm='HS256')
-    # 'created': f"{datetime.datetime.now()}"}, key=settings.SECRET_KEY, algorithm='HS256')
     return {
         'access': str(token)
     }
