@@ -61,7 +61,7 @@ def mark_as_favourite(request, id: int):
 
             User.objects.get(id=request.auth['pk']).favorites.add(fav_product)
 
-            return status.HTTP_404_NOT_FOUND, {'detail': f'Product with id {id} is favourite now'}
+            return status.HTTP_200_OK, {'detail': f'Product with id {id} is favourite now'}
 
     return status.HTTP_404_NOT_FOUND, {'detail': 'Not authorized'}
 
