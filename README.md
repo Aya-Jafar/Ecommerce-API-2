@@ -22,6 +22,9 @@ Before starting with Django Ninja API, ensure you have the following installed:
 
 2- Install Django using pip command: 
 ```python
-pip install django.
+pip install django
 ```
-3- Install Django Ninja using pip command: pip install django-ninja.
+3- Install Django Ninja using pip command: 
+```python
+pip install django-ninja
+```
