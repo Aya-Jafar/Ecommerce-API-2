@@ -30,5 +30,5 @@ pip install django-ninja
 ```
 4- Clone the Repo using this command:
 ```python 
-git clone 
+git clone "https://github.com/Aya-Jafar/eCommerce-API-2.git"
 ```
