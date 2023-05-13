@@ -28,3 +28,7 @@ pip install django
 ```python
 pip install django-ninja
 ```
+4- Clone the Repo using this command:
+```python 
+git clone 
+```
